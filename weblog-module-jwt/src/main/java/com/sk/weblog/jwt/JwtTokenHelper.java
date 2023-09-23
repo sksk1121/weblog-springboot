@@ -10,6 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -22,6 +23,7 @@ import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtTokenHelper implements InitializingBean {
 
@@ -41,7 +43,14 @@ public class JwtTokenHelper implements InitializingBean {
     private JwtParser jwtParser;
 
     /**
+     * Token 失效时间（分钟）
+     */
+//    @Value("${jwt.tokenExpireTime}")
+//    private Long tokenExpireTime;
+
+    /**
      * 解码配置文件中配置的 Base 64 编码 key 为秘钥
+     *
      * @param base64Key
      */
     @Value("${jwt.secret}")
@@ -52,6 +61,7 @@ public class JwtTokenHelper implements InitializingBean {
 
     /**
      * 初始化 JwtParser
+     *
      * @throws Exception
      */
     @Override
@@ -64,6 +74,7 @@ public class JwtTokenHelper implements InitializingBean {
 
     /**
      * 生成 Token
+     *
      * @param username
      * @return
      */
@@ -82,6 +93,7 @@ public class JwtTokenHelper implements InitializingBean {
 
     /**
      * 解析 Token
+     *
      * @param token
      * @return
      */
@@ -96,7 +108,35 @@ public class JwtTokenHelper implements InitializingBean {
     }
 
     /**
+     * 校验 Token 是否可用
+     *
+     * @param token
+     * @return
+     */
+    public void validateToken(String token) {
+        jwtParser.parseClaimsJws(token);
+    }
+
+    /**
+     * 解析 Token 获取用户名
+     *
+     * @param token
+     * @return
+     */
+    public String getUsernameByToken(String token) {
+        try {
+            Claims claims = jwtParser.parseClaimsJws(token).getBody();
+            String username = claims.getSubject();
+            return username;
+        } catch (Exception e) {
+            log.error("解析 Token 获取用户名失败:{}", e.getMessage(), e);
+        }
+        return null;
+    }
+
+    /**
      * 生成一个 Base64 的安全秘钥
+     *
      * @return
      */
     private static String generateBase64Key() {

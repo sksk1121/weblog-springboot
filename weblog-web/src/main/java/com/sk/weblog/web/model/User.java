@@ -16,6 +16,8 @@ public class User {
     // 用户名
     @NotBlank(message = "用户名不能为空") // 注解确保用户名不为空
     private String username;
+    // 密码
+    private String password;
     // 性别
     @NotNull(message = "性别不能为空") // 注解确保性别不为空
     private Integer sex;
