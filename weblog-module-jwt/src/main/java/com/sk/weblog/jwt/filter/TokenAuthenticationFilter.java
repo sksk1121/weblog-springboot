@@ -38,6 +38,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        if (!"/login".equals(request.getRequestURI())) {
+            // 继续执行写一个过滤器
+            filterChain.doFilter(request, response);
+        }
         // 从请求头中获取 key 为 Authorization 的值
         String header = request.getHeader("Authorization");
 
